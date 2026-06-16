@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koko-Pia (ココピア) - インコの美味しい栄養管理</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pastelYellow: {
+                            50: '#FFFDF0',
+                            100: '#FFF9C4',
+                            200: '#FFF59D',
+                            300: '#FFF176',
+                        },
+                        pastelOrange: {
+                            50: '#FFF8F0',
+                            100: '#FFE0B2',
+                            200: '#FFCC80',
+                            300: '#FFB74D',
+                        },
+                        pastelGreen: {
+                            50: '#F1F8E9',
+                            100: '#DCEDC8',
+                            200: '#C5E1A5',
+                            300: '#AED581',
+                        },
+                        charcoal: '#4E342E',
+                    },
+                    fontFamily: {
+                        rounded: ['"M PLUS Rounded 1c"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            background-color: #FFFDF0; /* 優しい極薄のパステルイエロー */
+        }
+        /* スクロールバーのカスタム */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FFFDF0;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FFE0B2;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FFCC80;
+        }
+    </style>
+</head>
+<body class="text-charcoal min-h-screen flex flex-col">
+
+    <!-- ヘッダー -->
+    <header class="bg-white border-b border-pastelYellow-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 bg-pastelYellow-100 rounded-full flex items-center justify-center text-xl shadow-inner">
+                    🐥
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-charcoal flex items-center gap-1">
+                        Koko-Pia <span class="text-xs bg-pastelGreen-200 text-emerald-800 px-2 py-0.5 rounded-full font-normal">ココピア</span>
+                    </h1>
+                    <p class="text-[10px] text-gray-500">シード食のための美味しい栄養補助サポート</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-sm hidden md:inline text-gray-600">おうちのインコ：</span>
+                <select id="activeBirdSelect" onchange="changeActiveBird()" class="bg-pastelOrange-50 border border-pastelOrange-200 text-charcoal text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-pastelOrange-300">
+                    <option value="sekisei">ききちゃん (セキセイインコ)</option>
+                    <option value="okame">ぽぽちゃん (オカメインコ)</option>
+                    <option value="kosakura">るるちゃん (コザクラインコ)</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="flex-grow max-w-6xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- 左サイド：インコの設定・ステータス -->
+        <div class="lg:col-span-4 space-y-6">
+            
+            <!-- インコプロフィール & 状態カード -->
+            <div class="bg-white rounded-3xl p-5 border border-pastelYellow-200 shadow-sm">
+                <div class="flex items-center gap-4 mb-4">
+                    <div id="birdAvatar" class="w-16 h-16 bg-pastelYellow-100 rounded-full flex items-center justify-center text-4xl shadow-md border-2 border-white">
+                        🐤
+                    </div>
+                    <div>
+                        <h2 id="birdNameDisplay" class="text-lg font-bold">ききちゃん</h2>
+                        <p id="birdTypeDisplay" class="text-xs text-gray-500">セキセイインコ / 2歳</p>
+                    </div>
+                </div>
+
+                <!-- 状態セレクト -->
+                <div class="space-y-3 pt-3 border-t border-dashed border-gray-200">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">今の季節・環境</label>
+                        <select id="seasonSelect" onchange="updateNutrientTargets()" class="w-full bg-pastelGreen-50 border border-pastelGreen-200 text-sm rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pastelGreen-200">
+                            <option value="normal">通常期（春・秋）</option>
+                            <option value="summer">夏場（水分・塩分注意）</option>
+                            <option value="winter">冬場（エネルギーが必要）</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">インコの状態</label>
+                        <select id="statusSelect" onchange="updateNutrientTargets()" class="w-full bg-pastelOrange-50 border border-pastelOrange-200 text-sm rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pastelOrange-200">
+                            <option value="healthy">健康（現状維持）</option>
+                            <option value="moulting">換羽期（羽の生え変わり：アミノ酸増量）</option>
+                            <option value="estrus">発情期（脂質制限が必要）</option>
+                            <option value="diet">ダイエット中（低カロリー）</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 目盛り設定リンクの仕組み紹介 -->
+            <div class="bg-pastelYellow-50 rounded-3xl p-5 border border-pastelYellow-200 shadow-sm space-y-4">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🥄</span>
+                    <h3 class="font-bold text-sm">かんたん計量のひみつ</h3>
+                </div>
+                <p class="text-xs text-gray-600 leading-relaxed">
+                    お使いの<strong>大さじスプーン</strong>や<strong>一合カップ</strong>に「目盛り」を想像（またはマジックで記入）してください。
+                    一度初期設定で「1目盛り＝〇g」と登録しておけば、毎日計らなくても目盛り選択だけで栄養が自動計算されます！
+                </p>
+                <div class="bg-white p-3 rounded-2xl border border-pastelYellow-100 flex items-center justify-around gap-2 text-center text-xs">
+                    <div>
+                        <span class="block text-lg">🥄</span>
+                        <span class="font-bold text-pastelOrange-300">大さじスプーン</span>
+                        <span class="block text-[10px] text-gray-400">（満杯で約 9g）</span>
+                    </div>
+                    <div class="h-10 w-[1px] bg-pastelYellow-200"></div>
+                    <div>
+                        <span class="block text-lg">🥛</span>
+                        <span class="font-bold text-pastelGreen-300">一合カップ</span>
+                        <span class="block text-[10px] text-gray-400">（満杯で約 100g）</span>
+                    </div>
+                </div>
+                <button onclick="toggleSetupModal(true)" class="w-full bg-white hover:bg-pastelYellow-100 text-charcoal border border-pastelYellow-300 font-bold py-2 px-4 rounded-xl text-xs transition duration-200 shadow-sm flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-calculator"></i> 目盛りの重さ設定を変更する
+                </button>
+            </div>
+
+        </div>
+
+        <!-- 右メイン：本日の栄養管理 & 記録 & カレンダー -->
+        <div class="lg:col-span-8 space-y-6">
+
+            <!-- タブ切り替え（今日の記録 / カレンダー・履歴） -->
+            <div class="flex bg-white p-1.5 rounded-2xl border border-pastelYellow-200 shadow-sm">
+                <button id="tabTodayBtn" onclick="switchTab('today')" class="flex-1 py-3 text-center font-bold text-sm rounded-xl bg-pastelYellow-100 text-charcoal transition-all">
+                    <i class="fa-solid fa-utensils mr-1"></i> 今日のごはん・栄養管理
+                </button>
+                <button id="tabCalendarBtn" onclick="switchTab('calendar')" class="flex-1 py-3 text-center font-bold text-sm rounded-xl text-gray-500 hover:text-charcoal transition-all">
+                    <i class="fa-solid fa-calendar-days mr-1"></i> 体調記録・カレンダー
+                </button>
+            </div>
+
+            <!-- タブ1: 今日の記録 -->
+            <div id="tabToday" class="space-y-6">
+                
+                <!-- 栄養バランスレーダー簡易表示 -->
+                <div class="bg-white rounded-3xl p-6 border border-pastelYellow-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h3 class="font-bold text-base flex items-center gap-1 text-charcoal">
+                                <span class="text-xl">📊</span> 今日の目標栄養達成率
+                            </h3>
+                            <p class="text-xs text-gray-400">シード・おやつ・サプリの合計栄養素</p>
+                        </div>
+                        <span id="overallEval" class="text-xs font-bold px-3 py-1 bg-pastelGreen-100 text-emerald-800 rounded-full">順調です！</span>
+                    </div>
+
+                    <!-- 4つの重要栄養素ゲージ -->
+                    <div class="space-y-4">
+                        <!-- 脂質 -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="font-bold text-gray-700">脂質 (シードに多い：肥満注意)</span>
+                                <span class="text-gray-500"><span id="valLipid">0.0</span> / <span id="targetLipid">0.40</span> g</span>
+                            </div>
+                            <div class="w-full bg-gray-100 h-4 rounded-full overflow-hidden relative">
+                                <div id="barLipid" class="h-full bg-pastelOrange-200 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                <div id="alertLipid" class="absolute right-2 top-0 text-[10px] text-red-500 font-bold hidden">摂りすぎ注意！</div>
+                            </div>
+                        </div>
+
+                        <!-- タンパク質 -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="font-bold text-gray-700">タンパク質 (羽づくりのアミノ酸)</span>
+                                <span class="text-gray-500"><span id="valProtein">0.0</span> / <span id="targetProtein">0.80</span> g</span>
+                            </div>
+                            <div class="w-full bg-gray-100 h-4 rounded-full overflow-hidden">
+                                <div id="barProtein" class="h-full bg-pastelGreen-300 rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- ビタミンA -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="font-bold text-gray-700">ビタミンA (粘膜・目の健康：野菜から)</span>
+                                <span class="text-gray-500"><span id="valVitA">0.0</span> / <span id="targetVitA">5.0</span> μg</span>
+                            </div>
+                            <div class="w-full bg-gray-100 h-4 rounded-full overflow-hidden">
+                                <div id="barVitA" class="h-full bg-yellow-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- カルシウム -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="font-bold text-gray-700">カルシウム・ヨウ素 (骨や甲状腺)</span>
+                                <span class="text-gray-500"><span id="valCalcium">0.0</span> / <span id="targetCalcium">30.0</span> mg</span>
+                            </div>
+                            <div class="w-full bg-gray-100 h-4 rounded-full overflow-hidden">
+                                <div id="barCalcium" class="h-full bg-sky-300 rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI栄養ワンポイントアドバイス -->
+                    <div id="aiAdviceBox" class="mt-6 p-4 bg-pastelGreen-50 border border-pastelGreen-100 rounded-2xl flex items-start gap-3">
+                        <span class="text-2xl">💡</span>
+                        <div class="text-xs text-emerald-900 leading-relaxed">
+                            <span class="font-bold block mb-1">ココのアドバイス：</span>
+                            <span id="aiAdviceText">今日の食事がまだ登録されていません。まずは主食のシードやおやつを記録してみましょう！</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ごはん記録フォーム -->
+                <div class="bg-white rounded-3xl p-6 border border-pastelYellow-200 shadow-sm space-y-6">
+                    <h3 class="font-bold text-base flex items-center gap-1">
+                        <span class="text-xl">✍️</span> ごはん・サプリを記録する
+                    </h3>
+
+                    <!-- フードカテゴリー選択タブ -->
+                    <div class="grid grid-cols-3 gap-2 p-1 bg-gray-50 rounded-xl border border-gray-100">
+                        <button onclick="switchFoodCategory('seed')" id="catSeedBtn" class="py-2 text-center text-xs font-bold rounded-lg bg-white text-charcoal shadow-sm">
+                            🌾 主食シード
+                        </button>
+                        <button onclick="switchFoodCategory('side')" id="catSideBtn" class="py-2 text-center text-xs font-bold rounded-lg text-gray-500 hover:text-charcoal">
+                            🥬 おやつ・野菜
+                        </button>
+                        <button onclick="switchFoodCategory('supple')" id="catSuppleBtn" class="py-2 text-center text-xs font-bold rounded-lg text-gray-500 hover:text-charcoal">
+                            🧪 サプリ・副食
+                        </button>
+                    </div>
+
+                    <!-- カテゴリ1: シード入力 -->
+                    <div id="formSeed" class="space-y-4">
+                        <div class="bg-pastelYellow-50 p-4 rounded-2xl border border-pastelYellow-100">
+                            <label class="block text-xs font-bold text-gray-700 mb-2">主食シードの種類</label>
+                            <select id="seedTypeSelect" class="w-full bg-white border border-pastelYellow-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pastelYellow-300">
+                                <option value="standard">基本の4種ブレンド (アワ・ヒエ・キビ・カナリーシード)</option>
+                                <option value="fatty">ひまわり・サフラワー多め (オカメ等中型用高カロリー)</option>
+                                <option value="diet">赤アワ・ヒエ中心 (低脂肪ダイエットシード)</option>
+                            </select>
+                        </div>
+
+                        <!-- 計量容器の選択 -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="selectSeedTool('spoon')" id="toolSpoonBtn" class="border-2 border-pastelOrange-300 bg-pastelOrange-50 p-3 rounded-2xl text-center transition-all">
+                                <span class="block text-2xl">🥄</span>
+                                <span class="text-xs font-bold block mt-1">大さじスプーン</span>
+                                <span class="text-[10px] text-gray-500">1杯あたり約 <span class="spoonSeedWeight">6</span>g</span>
+                            </button>
+                            <button onclick="selectSeedTool('cup')" id="toolCupBtn" class="border border-gray-200 hover:border-pastelGreen-200 p-3 rounded-2xl text-center transition-all">
+                                <span class="block text-2xl">🥛</span>
+                                <span class="text-xs font-bold block mt-1">一合カップ</span>
+                                <span class="text-[10px] text-gray-500">1杯あたり約 <span class="cupSeedWeight">120</span>g</span>
+                            </button>
+                        </div>
+
+                        <!-- 分量スライダー -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-xs font-bold">
+                                <span>与える量 (目盛り)</span>
+                                <span class="text-pastelOrange-400"><span id="seedScaleVal">1.0</span>杯分 (<span id="seedGramVal">6.0</span>g)</span>
+                            </div>
+                            <input type="range" id="seedScaleRange" min="0.1" max="3" step="0.1" value="1.0" oninput="calcSeedWeight()" class="w-full accent-pastelOrange-300">
+                            <div class="flex justify-between text-[10px] text-gray-400">
+                                <span>0.1杯</span>
+                                <span>1杯 (基準)</span>
+                                <span>2杯</span>
+                                <span>3杯</span>
+                            </div>
+                        </div>
+
+                        <button onclick="addFoodRecord('seed')" class="w-full bg-pastelOrange-200 hover:bg-pastelOrange-300 text-charcoal font-bold py-3 rounded-2xl transition duration-200 text-sm shadow-sm">
+                            🌾 シード食を記録に登録
+                        </button>
+                    </div>
+
+                    <!-- カテゴリ2: おやつ・野菜入力 -->
+                    <div id="formSide" class="space-y-4 hidden">
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="selectSideVeg('komatsuna')" id="veg_komatsuna" class="p-3 bg-pastelGreen-50 border-2 border-pastelGreen-200 rounded-2xl text-left flex items-center gap-3">
+                                <span class="text-2xl">🥬</span>
+                                <div>
+                                    <span class="text-xs font-bold block">小松菜 (2枚程度)</span>
+                                    <span class="text-[9px] text-emerald-800 bg-pastelGreen-200 px-1 py-0.2 rounded">ビタミンA抜群</span>
+                                </div>
+                            </button>
+                            <button onclick="selectSideVeg('ninjin')" id="veg_ninjin" class="p-3 bg-white border border-gray-200 hover:border-pastelOrange-200 rounded-2xl text-left flex items-center gap-3">
+                                <span class="text-2xl">🥕</span>
+                                <div>
+                                    <span class="text-xs font-bold block">にんじん (ひとかけ)</span>
+                                    <span class="text-[9px] text-orange-800 bg-pastelOrange-100 px-1 py-0.2 rounded">βカロテン豊富</span>
+                                </div>
+                            </button>
+                            <button onclick="selectSideVeg('apple')" id="veg_apple" class="p-3 bg-white border border-gray-200 hover:border-pastelOrange-100 rounded-2xl text-left flex items-center gap-3">
+                                <span class="text-2xl">🍎</span>
+                                <div>
+                                    <span class="text-xs font-bold block">りんご (極小スライス)</span>
+                                    <span class="text-[9px] text-red-800 bg-red-100 px-1 py-0.2 rounded">おやつの定番</span>
+                                </div>
+                            </button>
+                            <button onclick="selectSideVeg('seedOyatru')" id="veg_seedOyatru" class="p-3 bg-white border border-gray-200 hover:border-yellow-200 rounded-2xl text-left flex items-center gap-3">
+                                <span class="text-2xl">🌾</span>
+                                <div>
+                                    <span class="text-xs font-bold block">粟の穂 (5cm程度)</span>
+                                    <span class="text-[9px] text-amber-800 bg-yellow-100 px-1 py-0.2 rounded">ごほうび・大好物</span>
+                                </div>
+                            </button>
+                        </div>
+
+                        <!-- 野菜の量 -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-xs font-bold">
+                                <span>与える目安量</span>
+                                <span id="vegScaleText" class="text-pastelGreen-400">適量 (通常サイズ1回分)</span>
+                            </div>
+                        </div>
+
+                        <button onclick="addFoodRecord('side')" class="w-full bg-pastelGreen-200 hover:bg-pastelGreen-300 text-charcoal font-bold py-3 rounded-2xl transition duration-200 text-sm shadow-sm">
+                            🥬 おやつ・野菜を記録に登録
+                        </button>
+                    </div>
+
+                    <!-- カテゴリ3: サプリメント入力 -->
+                    <div id="formSupple" class="space-y-4 hidden">
+                        <div class="bg-pastelOrange-50 p-4 rounded-2xl border border-pastelOrange-100 space-y-3">
+                            <label class="block text-xs font-bold text-gray-700">お持ちのサプリメント</label>
+                            <select id="suppleTypeSelect" class="w-full bg-white border border-pastelOrange-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pastelOrange-200">
+                                <option value="necton_s">ネクトンS (総合ビタミン剤 - 水に溶かす)</option>
+                                <option value="necton_bio">ネクトンBIO (換羽期用アミノ酸サプリ)</option>
+                                <option value="calcium_powder">ボレー粉 / カルシウムパウダー (小さじ1杯)</option>
+                            </select>
+                        </div>
+
+                        <!-- 与えた目盛りスプーン数 -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-xs font-bold">
+                                <span>添加量 (付属の耳かきスプーン等)</span>
+                                <span class="text-pastelOrange-400"><span id="suppleSpoonVal">1</span>杯分</span>
+                            </div>
+                            <input type="range" id="suppleSpoonRange" min="1" max="4" step="1" value="1" oninput="document.getElementById('suppleSpoonVal').innerText=this.value" class="w-full accent-pastelOrange-300">
+                            <div class="flex justify-between text-[10px] text-gray-400">
+                                <span>1杯 (うっすら)</span>
+                                <span>2杯</span>
+                                <span>3杯</span>
+                                <span>4杯 (多め)</span>
+                            </div>
+                        </div>
+
+                        <button onclick="addFoodRecord('supple')" class="w-full bg-pastelOrange-200 hover:bg-pastelOrange-300 text-charcoal font-bold py-3 rounded-2xl transition duration-200 text-sm shadow-sm">
+                            🧪 サプリメントを記録に登録
+                        </button>
+                    </div>
+
+                    <!-- 本日の登録履歴 -->
+                    <div class="pt-4 border-t border-gray-100">
+                        <h4 class="text-xs font-bold text-gray-500 mb-2">今日のメニュー内容</h4>
+                        <div id="todayRecordList" class="space-y-2 max-h-40 overflow-y-auto">
+                            <!-- JSで挿入 -->
+                            <p class="text-xs text-gray-400 text-center py-4">まだ今日の食事が追加されていません。</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- タブ2: カレンダー・記録履歴 -->
+            <div id="tabCalendar" class="space-y-6 hidden">
+                
+                <!-- カレンダー表示 -->
+                <div class="bg-white rounded-3xl p-6 border border-pastelYellow-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-base flex items-center gap-1">
+                            <span class="text-xl">📅</span> お世話カレンダー
+                        </h3>
+                        <div class="flex gap-2 text-xs">
+                            <button onclick="moveMonth(-1)" class="p-1.5 hover:bg-gray-100 rounded-lg"><i class="fa-solid fa-chevron-left"></i></button>
+                            <span id="calendarMonthYear" class="font-bold self-center">2026年 6月</span>
+                            <button onclick="moveMonth(1)" class="p-1.5 hover:bg-gray-100 rounded-lg"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- 曜日ヘッダー -->
+                    <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-gray-500 mb-2">
+                        <div class="text-red-400">日</div>
+                        <div>月</div>
+                        <div>火</div>
+                        <div>水</div>
+                        <div>木</div>
+                        <div>金</div>
+                        <div class="text-blue-400">土</div>
+                    </div>
+
+                    <!-- 日付グリッド -->
+                    <div id="calendarGrid" class="grid grid-cols-7 gap-1">
+                        <!-- JSでカレンダー生成 -->
+                    </div>
+                </div>
+
+                <!-- 体調入力フォーム -->
+                <div id="conditionForm" class="bg-white rounded-3xl p-6 border border-pastelYellow-200 shadow-sm space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-base flex items-center gap-1">
+                            <span class="text-xl">📝</span> <span id="targetDateText">2026/06/16</span> の体調を記録する
+                        </h3>
+                        <span class="text-xs text-pastelOrange-400 font-bold">カレンダーの日付をタップして選択できます</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- 体重 -->
+                        <div class="bg-pastelYellow-50 p-4 rounded-2xl border border-pastelYellow-100">
+                            <label class="block text-xs font-bold text-gray-700 mb-2">体重 (g)</label>
+                            <div class="flex items-center gap-2">
+                                <input type="number" id="inputWeight" step="0.1" value="35.5" class="w-full bg-white border border-pastelYellow-200 rounded-xl px-3 py-2 text-sm text-center font-bold focus:outline-none focus:ring-2 focus:ring-pastelYellow-300">
+                                <span class="text-sm text-gray-600 font-bold">g</span>
+                            </div>
+                            <p class="text-[10px] text-gray-400 mt-1">※セキセイインコは30g〜40gが標準値</p>
+                        </div>
+
+                        <!-- 元気・フン -->
+                        <div class="bg-pastelGreen-50 p-4 rounded-2xl border border-pastelGreen-100 space-y-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">本日の元気</label>
+                                <div class="flex gap-2">
+                                    <button onclick="selectCondition('good')" id="condGood" class="flex-1 py-1 px-2 rounded-lg text-xs font-bold bg-white border-2 border-pastelGreen-300 text-charcoal">😊 ばっちり</button>
+                                    <button onclick="selectCondition('normal')" id="condNormal" class="flex-1 py-1 px-2 rounded-lg text-xs font-bold bg-white border border-gray-200 text-gray-500">😐 いつも通り</button>
+                                    <button onclick="selectCondition('bad')" id="condBad" class="flex-1 py-1 px-2 rounded-lg text-xs font-bold bg-white border border-gray-200 text-gray-500">😢 元気ない</button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">フンの様子</label>
+                                <div class="flex gap-2">
+                                    <button onclick="selectPoop('good')" id="poopGood" class="flex-1 py-1 px-2 rounded-lg text-xs font-bold bg-white border-2 border-pastelGreen-300 text-charcoal">🟢 よいフン</button>
+                                    <button onclick="selectPoop('water')" id="poopWater" class="flex-1 py-1 px-2 rounded-lg text-xs font-bold bg-white border border-gray-200 text-gray-500">💦 下痢・多尿</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- メモ -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">メモ・今日の様子</label>
+                        <textarea id="inputMemo" rows="2" placeholder="換羽が始まって痒そう。小松菜をよく食べた！" class="w-full bg-white border border-gray-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-pastelOrange-200"></textarea>
+                    </div>
+
+                    <button onclick="saveDailyCondition()" class="w-full bg-pastelGreen-200 hover:bg-pastelGreen-300 text-charcoal font-bold py-3 rounded-2xl transition duration-200 text-sm shadow-sm">
+                        💾 体調レコードを保存する
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- フッター -->
+    <footer class="bg-white border-t border-pastelYellow-200 py-6 mt-12 text-center text-xs text-gray-400">
+        <p>&copy; 2026 Koko-Pia Project - 飼い主とインコに寄り添う栄養シミュレーター</p>
+    </footer>
+
+    <!-- 計量器具設定モーダル -->
+    <div id="setupModal" class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-pastelYellow-200 space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-base flex items-center gap-1">
+                    <span class="text-xl">⚙️</span> 計量器具の基準登録
+                </h3>
+                <button onclick="toggleSetupModal(false)" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <p class="text-xs text-gray-500 leading-relaxed">
+                お持ちの計量スプーンやコップにフードを入れて重さを測り、その値をここに入力してください。これ以降、アプリがその重量に基づいて栄養計算を行います。
+            </p>
+
+            <div class="space-y-4 pt-2">
+                <!-- 大さじスプーン -->
+                <div class="bg-pastelOrange-50 p-4 rounded-2xl border border-pastelOrange-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-charcoal flex items-center gap-1">🥄 大さじスプーン (満杯)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-500">シード1杯あたり:</span>
+                        <input type="number" id="setupSpoonWeight" value="6" min="1" max="20" class="w-20 bg-white border border-pastelOrange-200 rounded-lg px-2 py-1 text-center font-bold text-sm">
+                        <span class="text-xs font-bold text-gray-600">g</span>
+                    </div>
+                </div>
+
+                <!-- 一合カップ -->
+                <div class="bg-pastelGreen-50 p-4 rounded-2xl border border-pastelGreen-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-charcoal flex items-center gap-1">🥛 一合カップ (満杯)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-500">シード1杯あたり:</span>
+                        <input type="number" id="setupCupWeight" value="120" min="10" max="300" class="w-20 bg-white border border-pastelGreen-200 rounded-lg px-2 py-1 text-center font-bold text-sm">
+                        <span class="text-xs font-bold text-gray-600">g</span>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="applySetupSettings()" class="w-full bg-pastelYellow-200 hover:bg-pastelYellow-300 text-charcoal font-bold py-3 rounded-2xl text-xs transition duration-200">
+                設定を反映して閉じる
+            </button>
+        </div>
+    </div>
+
+    <!-- トースト通知用の簡易DOM -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-charcoal text-white text-xs px-4 py-2.5 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+        記録を更新しました！
+    </div>
+
+    <!-- JavaScript ロジック -->
+    <script>
+        // 1. データ定義（インコ種類ごとの基準値やフードの1gあたりの栄養素）
+        const birdProfiles = {
+            sekisei: {
+                name: 'ききちゃん',
+                type: 'セキセイインコ',
+                avatar: '🐤',
+                standardWeight: 35.0,
+                // 1日あたりの理想栄養素 (脂質, タンパク質, ビタミンA, カルシウム)
+                targets: { lipid: 0.35, protein: 0.70, vitA: 4.0, calcium: 25.0 }
+            },
+            okame: {
+                name: 'ぽぽちゃん',
+                type: 'オカメインコ',
+                avatar: '🐥',
+                standardWeight: 85.0,
+                targets: { lipid: 0.80, protein: 1.60, vitA: 8.0, calcium: 50.0 }
+            },
+            kosakura: {
+                name: 'るるちゃん',
+                type: 'コザクラインコ',
+                avatar: '🦜',
+                standardWeight: 50.0,
+                targets: { lipid: 0.50, protein: 1.00, vitA: 5.0, calcium: 35.0 }
+            }
+        };
+
+        // 食材 1g あたりの栄養素
+        const nutrientsPerGram = {
+            // シード類
+            seed_standard: { lipid: 0.05, protein: 0.11, vitA: 0.1, calcium: 0.3 },
+            seed_fatty: { lipid: 0.12, protein: 0.13, vitA: 0.2, calcium: 0.4 },
+            seed_diet: { lipid: 0.03, protein: 0.09, vitA: 0.1, calcium: 0.2 },
+            // おやつ・野菜（分量単位で管理、ここでは1回分を1gとして仮想計算）
+            veg_komatsuna: { lipid: 0.01, protein: 0.10, vitA: 6.5, calcium: 15.0 }, // ビタミン・カルシウム抜群
+            veg_ninjin: { lipid: 0.01, protein: 0.05, vitA: 8.0, calcium: 3.0 }, // βカロテン最高
+            veg_apple: { lipid: 0.005, protein: 0.01, vitA: 0.2, calcium: 1.0 }, // 水分とおやつ
+            veg_seedOyatru: { lipid: 0.06, protein: 0.10, vitA: 0.1, calcium: 0.2 }, // 粟の穂など
+            // サプリメント（1スプーンあたりの固定値に近似）
+            supple_necton_s: { lipid: 0.0, protein: 0.2, vitA: 15.0, calcium: 5.0 },
+            supple_necton_bio: { lipid: 0.0, protein: 0.5, vitA: 10.0, calcium: 2.0 },
+            supple_calcium_powder: { lipid: 0.0, protein: 0.0, vitA: 0.0, calcium: 30.0 }
+        };
+
+        // 2. 状態管理
+        let currentBird = 'sekisei';
+        let currentSeason = 'normal';
+        let currentStatus = 'healthy';
+        
+        let selectedSeedTool = 'spoon'; // 'spoon' or 'cup'
+        let seedSpoonWeight = 6;  // 大さじ1杯
+        let seedCupWeight = 120;  // カップ1杯
+        
+        let selectedVegId = 'komatsuna';
+        let activeCategory = 'seed';
+        
+        // 日誌データ構造 (キー: 'YYYY-MM-DD')
+        let dailyLogs = {
+            '2026-06-16': {
+                meals: [
+                    { type: 'seed', name: '主食シード (基本ブレンド)', amount: '大さじ 1.0杯(6.0g)', nutrients: { lipid: 0.3, protein: 0.66, vitA: 0.6, calcium: 1.8 } },
+                    { type: 'side', name: '小松菜 (2枚程度)', amount: '1回分', nutrients: { lipid: 0.01, protein: 0.10, vitA: 6.5, calcium: 15.0 } }
+                ],
+                weight: 35.2,
+                condition: 'good',
+                poop: 'good',
+                memo: '今日はとても元気にケージ内を飛び回っていました。小松菜もよく食べてくれました！'
+            },
+            '2026-06-15': {
+                meals: [
+                    { type: 'seed', name: '主食シード (基本ブレンド)', amount: '大さじ 1.2杯(7.2g)', nutrients: { lipid: 0.36, protein: 0.79, vitA: 0.7, calcium: 2.1 } }
+                ],
+                weight: 35.5,
+                condition: 'normal',
+                poop: 'good',
+                memo: 'おやつはなし。体重が少し増え気味なのでシード量を調整しようかな。'
+            }
+        };
+
+        // 今日選ばれているカレンダーの日
+        let selectedCalendarDate = '2026-06-16';
+        // カレンダー表示用の年月
+        let calendarYear = 2026;
+        let calendarMonth = 5; // 0=1月、5=6月
+
+        // 3. 起動時イニシャライズ
+        window.onload = function() {
+            // 初期設定の同期
+            document.querySelector('.spoonSeedWeight').innerText = seedSpoonWeight;
+            document.querySelector('.cupSeedWeight').innerText = seedCupWeight;
+            
+            updateNutrientTargets();
+            calcSeedWeight();
+            renderTodayRecords();
+            renderCalendar();
+            selectCalendarDate('2026-06-16');
+        }
+
+        // 4. 関数定義：インコの切り替え
+        function changeActiveBird() {
+            currentBird = document.getElementById('activeBirdSelect').value;
+            const profile = birdProfiles[currentBird];
+            
+            // プロフィール反映
+            document.getElementById('birdNameDisplay').innerText = profile.name;
+            document.getElementById('birdTypeDisplay').innerText = `${profile.type} / 基準体重 ${profile.standardWeight}g`;
+            document.getElementById('birdAvatar').innerText = profile.avatar;
+            
+            // 体調入力フォームの初期体重を変更
+            document.getElementById('inputWeight').value = profile.standardWeight;
+            
+            updateNutrientTargets();
+            showToast(`${profile.name} にきりかえました！`);
+        }
+
+        // 栄養目標値の計算（インコの種類 × 季節 × 体調状態）
+        let activeTargets = {};
+        function updateNutrientTargets() {
+            const profile = birdProfiles[currentBird];
+            currentSeason = document.getElementById('seasonSelect').value;
+            currentStatus = document.getElementById('statusSelect').value;
+
+            // 基本目標値のコピー
+            activeTargets = { ...profile.targets };
+
+            // 季節・状態による補正
+            if (currentStatus === 'moulting') {
+                // 換羽期はタンパク質(羽の原料)を増量
+                activeTargets.protein *= 1.4;
+                activeTargets.vitA *= 1.2;
+            } else if (currentStatus === 'estrus') {
+                // 発情期は脂質を徹底的に減らす
+                activeTargets.lipid *= 0.7;
+            } else if (currentStatus === 'diet') {
+                activeTargets.lipid *= 0.8;
+                activeTargets.protein *= 0.9;
+            }
+
+            if (currentSeason === 'winter') {
+                // 冬はエネルギー消費が激しいため、脂質・タンパク質をやや多めに許可
+                activeTargets.lipid *= 1.15;
+                activeTargets.protein *= 1.1;
+            }
+
+            // UIへの反映（目標値の表示）
+            document.getElementById('targetLipid').innerText = activeTargets.lipid.toFixed(2);
+            document.getElementById('targetProtein').innerText = activeTargets.protein.toFixed(2);
+            document.getElementById('targetVitA').innerText = activeTargets.vitA.toFixed(1);
+            document.getElementById('targetCalcium').innerText = activeTargets.calcium.toFixed(1);
+
+            updateNutritionCharts();
+        }
+
+        // 5. 関数定義：ごはん入力ロジック
+        function switchFoodCategory(category) {
+            activeCategory = category;
+            
+            // ボタンのアクティブ化
+            document.getElementById('catSeedBtn').className = category === 'seed' ? 'py-2 text-center text-xs font-bold rounded-lg bg-white text-charcoal shadow-sm' : 'py-2 text-center text-xs font-bold rounded-lg text-gray-500 hover:text-charcoal';
+            document.getElementById('catSideBtn').className = category === 'side' ? 'py-2 text-center text-xs font-bold rounded-lg bg-white text-charcoal shadow-sm' : 'py-2 text-center text-xs font-bold rounded-lg text-gray-500 hover:text-charcoal';
+            document.getElementById('catSuppleBtn').className = category === 'supple' ? 'py-2 text-center text-xs font-bold rounded-lg bg-white text-charcoal shadow-sm' : 'py-2 text-center text-xs font-bold rounded-lg text-gray-500 hover:text-charcoal';
+
+            // フォームの表示切り替え
+            document.getElementById('formSeed').classList.toggle('hidden', category !== 'seed');
+            document.getElementById('formSide').classList.toggle('hidden', category !== 'side');
+            document.getElementById('formSupple').classList.toggle('hidden', category !== 'supple');
+        }
+
+        // シード計量ツールの選択
+        function selectSeedTool(tool) {
+            selectedSeedTool = tool;
+            document.getElementById('toolSpoonBtn').className = tool === 'spoon' ? 'border-2 border-pastelOrange-300 bg-pastelOrange-50 p-3 rounded-2xl text-center transition-all' : 'border border-gray-200 hover:border-pastelGreen-200 p-3 rounded-2xl text-center transition-all';
+            document.getElementById('toolCupBtn').className = tool === 'cup' ? 'border-2 border-pastelGreen-300 bg-pastelGreen-50 p-3 rounded-2xl text-center transition-all' : 'border border-gray-200 hover:border-pastelOrange-200 p-3 rounded-2xl text-center transition-all';
+            
+            calcSeedWeight();
+        }
+
+        // スライダー調整に伴う重さ計算
+        function calcSeedWeight() {
+            const scale = parseFloat(document.getElementById('seedScaleRange').value);
+            const unitWeight = selectedSeedTool === 'spoon' ? seedSpoonWeight : seedCupWeight;
+            const finalWeight = (scale * unitWeight).toFixed(1);
+
+            document.getElementById('seedScaleVal').innerText = scale.toFixed(1);
+            document.getElementById('seedGramVal').innerText = finalWeight;
+        }
+
+        // 野菜の選択
+        function selectSideVeg(vegId) {
+            selectedVegId = vegId;
+            const items = ['komatsuna', 'ninjin', 'apple', 'seedOyatru'];
+            items.forEach(id => {
+                const element = document.getElementById(`veg_${id}`);
+                if (id === vegId) {
+                    element.className = 'p-3 bg-pastelGreen-50 border-2 border-pastelGreen-200 rounded-2xl text-left flex items-center gap-3 transition-all';
+                } else {
+                    element.className = 'p-3 bg-white border border-gray-200 hover:border-pastelGreen-100 rounded-2xl text-left flex items-center gap-3 transition-all';
+                }
+            });
+
+            const vegScaleTexts = {
+                komatsuna: '適量 (2枚程度で十分なビタミン)',
+                ninjin: '極小サイズ (ひとかけらで十分)',
+                apple: 'おやつ程度 (極うすスライス)',
+                seedOyatru: 'ご褒美サイズ (与えすぎると主食を食べません)'
+            };
+            document.getElementById('vegScaleText').innerText = vegScaleTexts[vegId];
+        }
+
+        // 食事レコードの追加
+        function addFoodRecord(type) {
+            const todayKey = '2026-06-16'; // デモのため本日の日付で固定
+            if (!dailyLogs[todayKey]) {
+                dailyLogs[todayKey] = { meals: [], weight: 35.0, condition: 'good', poop: 'good', memo: '' };
+            }
+
+            let newMeal = {};
+
+            if (type === 'seed') {
+                const seedType = document.getElementById('seedTypeSelect').value;
+                const scale = parseFloat(document.getElementById('seedScaleRange').value);
+                const weight = parseFloat(document.getElementById('seedGramVal').innerText);
+                
+                let seedName = '主食シード (基本ブレンド)';
+                if (seedType === 'fatty') seedName = '主食シード (高脂質シードミックス)';
+                if (seedType === 'diet') seedName = '主食シード (低脂肪ダイエットシード)';
+
+                const baseNutrients = nutrientsPerGram[`seed_${seedType}`];
+                
+                newMeal = {
+                    type: 'seed',
+                    name: seedName,
+                    amount: `${selectedSeedTool === 'spoon' ? '大さじ' : '一合カップ'} ${scale.toFixed(1)}杯(${weight}g)`,
+                    nutrients: {
+                        lipid: baseNutrients.lipid * weight,
+                        protein: baseNutrients.protein * weight,
+                        vitA: baseNutrients.vitA * weight,
+                        calcium: baseNutrients.calcium * weight
+                    }
+                };
+            } 
+            else if (type === 'side') {
+                const baseNutrients = nutrientsPerGram[`veg_${selectedVegId}`];
+                const vegNames = {
+                    komatsuna: '小松菜 (2枚)',
+                    ninjin: 'にんじん (極小かけ)',
+                    apple: 'りんご (極小スライス)',
+                    seedOyatru: '粟の穂 (5cm程度)'
+                };
+
+                newMeal = {
+                    type: 'side',
+                    name: vegNames[selectedVegId],
+                    amount: '1回分',
+                    nutrients: { ...baseNutrients } // 1回分の設定値をそのまま適用
+                };
+            } 
+            else if (type === 'supple') {
+                const suppleType = document.getElementById('suppleTypeSelect').value;
+                const scale = parseInt(document.getElementById('suppleSpoonRange').value);
+                
+                const baseNutrients = nutrientsPerGram[`supple_${suppleType}`];
+                const suppleNames = {
+                    necton_s: 'ネクトンS (ビタミン)',
+                    necton_bio: 'ネクトンBIO (アミノ酸)',
+                    calcium_powder: 'ボレー粉・カルシウム'
+                };
+
+                newMeal = {
+                    type: 'supple',
+                    name: suppleNames[suppleType],
+                    amount: `ミニスプーン ${scale}杯`,
+                    nutrients: {
+                        lipid: baseNutrients.lipid * scale,
+                        protein: baseNutrients.protein * scale,
+                        vitA: baseNutrients.vitA * scale,
+                        calcium: baseNutrients.calcium * scale
+                    }
+                };
+            }
+
+            dailyLogs[todayKey].meals.push(newMeal);
+            showToast(`${newMeal.name} を登録しました！`);
+            renderTodayRecords();
+            updateNutritionCharts();
+        }
+
+        // 今日のごはんリストの描画
+        function renderTodayRecords() {
+            const todayKey = '2026-06-16';
+            const log = dailyLogs[todayKey];
+            const container = document.getElementById('todayRecordList');
+            
+            if (!log || log.meals.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-400 text-center py-4">まだ今日の食事が追加されていません。</p>`;
+                return;
+            }
+
+            let html = '';
+            log.meals.forEach((meal, index) => {
+                let icon = '🌾';
+                let bgColor = 'bg-pastelOrange-50 border-pastelOrange-100';
+                if (meal.type === 'side') {
+                    icon = '🥬';
+                    bgColor = 'bg-pastelGreen-50 border-pastelGreen-100';
+                } else if (meal.type === 'supple') {
+                    icon = '🧪';
+                    bgColor = 'bg-pastelYellow-50 border-pastelYellow-100';
+                }
+
+                html += `
+                    <div class="flex items-center justify-between p-3 rounded-xl border ${bgColor} text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="text-lg">${icon}</span>
+                            <div>
+                                <span class="font-bold block">${meal.name}</span>
+                                <span class="text-[10px] text-gray-400">分量: ${meal.amount}</span>
+                            </div>
+                        </div>
+                        <button onclick="removeFoodRecord(${index})" class="text-gray-400 hover:text-red-500 p-1">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // 登録ごはんの削除
+        function removeFoodRecord(index) {
+            const todayKey = '2026-06-16';
+            if (dailyLogs[todayKey]) {
+                dailyLogs[todayKey].meals.splice(index, 1);
+                renderTodayRecords();
+                updateNutritionCharts();
+                showToast('メニューから削除しました。');
+            }
+        }
+
+        // 6. 栄養集計 & グラフ・アドバイス自動更新
+        function updateNutritionCharts() {
+            const todayKey = '2026-06-16';
+            const log = dailyLogs[todayKey];
+
+            let totals = { lipid: 0, protein: 0, vitA: 0, calcium: 0 };
+
+            if (log && log.meals.length > 0) {
+                log.meals.forEach(meal => {
+                    totals.lipid += meal.nutrients.lipid;
+                    totals.protein += meal.nutrients.protein;
+                    totals.vitA += meal.nutrients.vitA;
+                    totals.calcium += meal.nutrients.calcium;
+                });
+            }
+
+            // 実数表示の更新
+            document.getElementById('valLipid').innerText = totals.lipid.toFixed(2);
+            document.getElementById('valProtein').innerText = totals.protein.toFixed(2);
+            document.getElementById('valVitA').innerText = totals.vitA.toFixed(1);
+            document.getElementById('valCalcium').innerText = totals.calcium.toFixed(1);
+
+            // 割合計算とバー反映
+            const pctLipid = Math.min((totals.lipid / activeTargets.lipid) * 100, 150); // 最大150%まで描画
+            const pctProtein = Math.min((totals.protein / activeTargets.protein) * 100, 150);
+            const pctVitA = Math.min((totals.vitA / activeTargets.vitA) * 100, 150);
+            const pctCalcium = Math.min((totals.calcium / activeTargets.calcium) * 100, 150);
+
+            document.getElementById('barLipid').style.width = `${pctLipid}%`;
+            document.getElementById('barProtein').style.width = `${pctProtein}%`;
+            document.getElementById('barVitA').style.width = `${pctVitA}%`;
+            document.getElementById('barCalcium').style.width = `${pctCalcium}%`;
+
+            // 脂質過多のアラート
+            document.getElementById('alertLipid').classList.toggle('hidden', pctLipid <= 110);
+
+            // AI（お世話アドバイザーココちゃん）のアドバイス自動変更
+            let advice = '今日の食事がまだ登録されていません。まずは主食のシードやおやつを記録してみましょう！';
+            let evalText = '食事を記録しましょう';
+            let evalClass = 'bg-gray-100 text-gray-800';
+
+            if (log && log.meals.length > 0) {
+                if (pctLipid > 115) {
+                    advice = '少し脂質（シードの油分）が多めのようです。これ以上シードは増やさず、おやつに「小松菜」などの葉野菜をプラスしてビタミンを強化しましょう！';
+                    evalText = '脂質やや高め';
+                    evalClass = 'bg-amber-100 text-amber-800';
+                } else if (pctVitA < 50) {
+                    advice = 'シードだけではビタミンAが不足しています！「小松菜」を2枚ケージに取り付けるか、お水に総合ビタミン剤「ネクトンS」を1杯混ぜてみましょう。';
+                    evalText = 'ビタミン不足';
+                    evalClass = 'bg-yellow-100 text-amber-800';
+                } else if (pctCalcium < 50) {
+                    advice = 'カルシウムが足りていません。インコの卵秘や骨弱を防ぐために、ボレー粉（カキガラ）をひとつまみお皿に入れるか、カルシウムパウダーの追加がおすすめ！';
+                    evalText = 'ミネラル不足';
+                    evalClass = 'bg-sky-100 text-sky-800';
+                } else if (currentStatus === 'moulting' && pctProtein < 80) {
+                    advice = '換羽期（生え変わり）でエネルギーが必要です。アミノ酸・タンパク質が豊富な「ネクトンBIO」をスプーン1杯ご飯にふりかけるのが大正解です。';
+                    evalText = 'アミノ酸を要強化';
+                    evalClass = 'bg-teal-100 text-teal-800';
+                } else {
+                    advice = '素晴らしい栄養バランスです！シードの美味しさを楽しみながら、おやつやサプリを最高に使いこなしていますね！この調子をキープしましょう。';
+                    evalText = '栄養満点！';
+                    evalClass = 'bg-pastelGreen-200 text-emerald-800';
+                }
+            }
+
+            document.getElementById('aiAdviceText').innerText = advice;
+            document.getElementById('overallEval').innerText = evalText;
+            document.getElementById('overallEval').className = `text-xs font-bold px-3 py-1 rounded-full ${evalClass}`;
+        }
+
+        // 7. タブ切り替え
+        function switchTab(tab) {
+            const isToday = tab === 'today';
+            document.getElementById('tabTodayBtn').className = isToday 
+                ? 'flex-1 py-3 text-center font-bold text-sm rounded-xl bg-pastelYellow-100 text-charcoal transition-all'
+                : 'flex-1 py-3 text-center font-bold text-sm rounded-xl text-gray-500 hover:text-charcoal transition-all';
+            document.getElementById('tabCalendarBtn').className = !isToday 
+                ? 'flex-1 py-3 text-center font-bold text-sm rounded-xl bg-pastelYellow-100 text-charcoal transition-all'
+                : 'flex-1 py-3 text-center font-bold text-sm rounded-xl text-gray-500 hover:text-charcoal transition-all';
+
+            document.getElementById('tabToday').classList.toggle('hidden', !isToday);
+            document.getElementById('tabCalendar').classList.toggle('hidden', isToday);
+
+            if (!isToday) {
+                renderCalendar();
+            }
+        }
+
+        // 8. カレンダー・体調管理ロジック
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const monthYearText = document.getElementById('calendarMonthYear');
+            
+            const monthNames = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
+            monthYearText.innerText = `${calendarYear}年 ${monthNames[calendarMonth]}月`;
+
+            // 月の初日と日数
+            const firstDayIndex = new Date(calendarYear, calendarMonth, 1).getDay();
+            const totalDays = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+
+            let gridHtml = '';
+
+            // 前月の空白埋め
+            for (let i = 0; i < firstDayIndex; i++) {
+                gridHtml += `<div class="aspect-square bg-gray-50/50 rounded-xl"></div>`;
+            }
+
+            // 日にちのレンダリング
+            for (let day = 1; day <= totalDays; day++) {
+                const dateString = `${calendarYear}-${String(calendarMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const hasLog = dailyLogs[dateString];
+                
+                let dayBg = 'bg-white border-gray-100 hover:border-pastelYellow-300';
+                let indicatorHtml = '';
+
+                if (dateString === selectedCalendarDate) {
+                    dayBg = 'bg-pastelYellow-100 border-pastelYellow-300 ring-2 ring-pastelOrange-200';
+                }
+
+                if (hasLog) {
+                    const condEmoji = hasLog.condition === 'good' ? '😊' : (hasLog.condition === 'bad' ? '😢' : '😐');
+                    const poopEmoji = hasLog.poop === 'good' ? '🟢' : '💦';
+                    indicatorHtml = `
+                        <div class="flex justify-center gap-0.5 mt-1 text-[10px]">
+                            <span>${condEmoji}</span>
+                            <span>${hasLog.weight ? `${hasLog.weight}g` : ''}</span>
+                        </div>
+                    `;
+                }
+
+                gridHtml += `
+                    <button onclick="selectCalendarDate('${dateString}')" class="aspect-square p-1.5 border rounded-xl flex flex-col justify-between items-center transition duration-150 ${dayBg}">
+                        <span class="text-xs font-bold text-gray-700">${day}</span>
+                        ${indicatorHtml}
+                    </button>
+                `;
+            }
+
+            grid.innerHTML = gridHtml;
+        }
+
+        // カレンダーの日付変更ボタン
+        function moveMonth(dir) {
+            calendarMonth += dir;
+            if (calendarMonth > 11) {
+                calendarMonth = 0;
+                calendarYear++;
+            } else if (calendarMonth < 0) {
+                calendarMonth = 11;
+                calendarYear--;
+            }
+            renderCalendar();
+        }
+
+        // カレンダー日付のタップ選択
+        let activeCondition = 'good';
+        let activePoop = 'good';
+
+        function selectCalendarDate(dateStr) {
+            selectedCalendarDate = dateStr;
+            document.getElementById('targetDateText').innerText = dateStr;
+            
+            // 選択された日付のログデータを読み込んで、フォームに表示
+            const log = dailyLogs[dateStr];
+            if (log) {
+                document.getElementById('inputWeight').value = log.weight || '';
+                document.getElementById('inputMemo').value = log.memo || '';
+                selectCondition(log.condition || 'good');
+                selectPoop(log.poop || 'good');
+            } else {
+                // デフォルト値をロード
+                const profile = birdProfiles[currentBird];
+                document.getElementById('inputWeight').value = profile.standardWeight;
+                document.getElementById('inputMemo').value = '';
+                selectCondition('good');
+                selectPoop('good');
+            }
+
+            renderCalendar();
+        }
+
+        // 体調・元気・フンのUI選択切り替え
+        function selectCondition(cond) {
+            activeCondition = cond;
+            const btnGood = document.getElementById('condGood');
+            const btnNormal = document.getElementById('condNormal');
+            const btnBad = document.getElementById('condBad');
+
+            btnGood.className = cond === 'good' ? 'flex-1 py-1 px-2 rounded-lg text-xs font-bold bg-pastelGreen-100 border-2 border-pastelGreen-300 text-charcoal' : 'flex-1 py-1 px-2 rounded-lg text-xs font-bold bg-white border border-gray-200 text-gray-500';
+            btnNormal.className = cond === 'normal' ? 'flex-1 py-1 px-2 rounded-lg text-xs font-bold bg-pastelYellow-100 border-2 border-pastelYellow-300 text-charcoal' : 'flex-1 py-1 px-2 rounded-lg text-xs font-bold bg-white border border-gray-200 text-gray-500';
+            btnBad.className = cond === 'bad' ? 'flex-1 py-1 px-2 rounded-lg text-xs font-bold bg-red-100 border-2 border-red-300 text-red-800' : 'flex-1 py-1 px-2 rounded-lg text-xs font-bold bg-white border border-gray-200 text-gray-500';
+        }
+
+        function selectPoop(poop) {
+            activePoop = poop;
+            const btnGood = document.getElementById('poopGood');
+            const btnWater = document.getElementById('poopWater');
+
+            btnGood.className = poop === 'good' ? 'flex-1 py-1 px-2 rounded-lg text-xs font-bold bg-pastelGreen-100 border-2 border-pastelGreen-300 text-charcoal' : 'flex-1 py-1 px-2 rounded-lg text-xs font-bold bg-white border border-gray-200 text-gray-500';
+            btnWater.className = poop === 'water' ? 'flex-1 py-1 px-2 rounded-lg text-xs font-bold bg-red-100 border-2 border-red-300 text-red-800' : 'flex-1 py-1 px-2 rounded-lg text-xs font-bold bg-white border border-gray-200 text-gray-500';
+        }
+
+        // 体調レコードの保存
+        function saveDailyCondition() {
+            const weight = parseFloat(document.getElementById('inputWeight').value) || 0;
+            const memo = document.getElementById('inputMemo').value;
+
+            if (!dailyLogs[selectedCalendarDate]) {
+                dailyLogs[selectedCalendarDate] = { meals: [] };
+            }
+
+            dailyLogs[selectedCalendarDate].weight = weight;
+            dailyLogs[selectedCalendarDate].condition = activeCondition;
+            dailyLogs[selectedCalendarDate].poop = activePoop;
+            dailyLogs[selectedCalendarDate].memo = memo;
+
+            showToast(`${selectedCalendarDate} の記録を保存しました。`);
+            renderCalendar();
+        }
+
+        // 9. 計量カップ・スプーンの設定変更モーダル
+        function toggleSetupModal(isOpen) {
+            const modal = document.getElementById('setupModal');
+            modal.classList.toggle('hidden', !isOpen);
+            if (isOpen) {
+                document.getElementById('setupSpoonWeight').value = seedSpoonWeight;
+                document.getElementById('setupCupWeight').value = seedCupWeight;
+            }
+        }
+
+        function applySetupSettings() {
+            const sw = parseInt(document.getElementById('setupSpoonWeight').value);
+            const cw = parseInt(document.getElementById('setupCupWeight').value);
+
+            if (sw > 0 && cw > 0) {
+                seedSpoonWeight = sw;
+                seedCupWeight = cw;
+
+                document.querySelector('.spoonSeedWeight').innerText = seedSpoonWeight;
+                document.querySelector('.cupSeedWeight').innerText = seedCupWeight;
+
+                calcSeedWeight();
+                toggleSetupModal(false);
+                showToast('計量スプーン・コップの基準を更新しました！');
+            }
+        }
+
+        // 10. トースト通知
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.className = "fixed bottom-5 right-5 bg-charcoal text-white text-xs px-4 py-2.5 rounded-xl shadow-lg transform translate-y-0 opacity-100 transition-all duration-300 z-50";
+            
+            setTimeout(() => {
+                toast.className = "fixed bottom-5 right-5 bg-charcoal text-white text-xs px-4 py-2.5 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50";
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
